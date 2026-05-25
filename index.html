@@ -310,7 +310,7 @@
     <section class="stoch-card stoch-hidden" aria-hidden="true">
       <div class="stoch-title-wrap">
         <h2>إعدادات المنصة / Supabase</h2>
-        <span>ضع رابط Supabase و Anon Key هنا للتجربة. سيتم حفظها محليًا في المتصفح.</span>
+        <span>بيانات Supabase تقرأ من ثوابت داخل نفس الصفحة ولا تحفظ في localStorage.</span>
       </div>
 
       <div class="stoch-settings-grid">
@@ -445,13 +445,15 @@
     </section>
   </main>
 
-  <script>
+    <script>
     const STOCH_STORAGE_KEYS = {
-      supabaseUrl: "stoch_supabase_url",
-      supabaseAnonKey: "stoch_supabase_anon_key",
       telegramToken: "stoch_telegram_token",
       telegramChatId: "stoch_telegram_chat_id"
     };
+
+    // ضع بيانات اتصال Supabase هنا داخل الصفحة بدل localStorage.
+    const STOCH_SUPABASE_URL = "";
+    const STOCH_SUPABASE_ANON_KEY = "";
 
     const STOCH_ARCHIVE_STORAGE_KEY = "stoch_falcons_archive";
 
@@ -754,28 +756,25 @@
     }
 
     function stochLoadLocalSettings() {
-      stochSupabaseUrlEl.value = localStorage.getItem(STOCH_STORAGE_KEYS.supabaseUrl) || "";
-      stochSupabaseKeyEl.value = localStorage.getItem(STOCH_STORAGE_KEYS.supabaseAnonKey) || "";
+      stochSupabaseUrlEl.value = STOCH_SUPABASE_URL;
+      stochSupabaseKeyEl.value = STOCH_SUPABASE_ANON_KEY;
       stochTelegramTokenEl.value = localStorage.getItem(STOCH_STORAGE_KEYS.telegramToken) || "";
       stochTelegramChatIdEl.value = localStorage.getItem(STOCH_STORAGE_KEYS.telegramChatId) || "";
     }
 
     function stochSaveLocalSettings() {
-      localStorage.setItem(STOCH_STORAGE_KEYS.supabaseUrl, stochSupabaseUrlEl.value.trim());
-      localStorage.setItem(STOCH_STORAGE_KEYS.supabaseAnonKey, stochSupabaseKeyEl.value.trim());
       localStorage.setItem(STOCH_STORAGE_KEYS.telegramToken, stochTelegramTokenEl.value.trim());
       localStorage.setItem(STOCH_STORAGE_KEYS.telegramChatId, stochTelegramChatIdEl.value.trim());
     }
 
     function stochCreateSupabaseClientFromInputs() {
-      const url = stochSupabaseUrlEl.value.trim();
-      const anonKey = stochSupabaseKeyEl.value.trim();
+      const url = STOCH_SUPABASE_URL.trim() || stochSupabaseUrlEl.value.trim();
+      const anonKey = STOCH_SUPABASE_ANON_KEY.trim() || stochSupabaseKeyEl.value.trim();
 
       if (!url || !anonKey) {
-        throw new Error("ضع Supabase URL و Supabase Anon Key أولًا.");
+        throw new Error("ضع Supabase URL و Supabase Anon Key داخل ثوابت الصفحة أولًا.");
       }
 
-      stochSaveLocalSettings();
       stochSupabaseClient = supabase.createClient(url, anonKey);
       return stochSupabaseClient;
     }
