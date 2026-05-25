@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>الصقور</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --card-2: #1f2937;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border: #374151;
+      --accent: #38bdf8;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .stoch-page {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .stoch-header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .stoch-header h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+
+    .stoch-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .stoch-hidden {
+      display: none !important;
+    }
+
+    .stoch-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+      margin-bottom: 18px;
+    }
+
+    .stoch-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .stoch-title-wrap h2 {
+      margin: 0 0 6px;
+      font-size: 20px;
+    }
+
+    .stoch-title-wrap span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .stoch-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stoch-btn {
+      border: 0;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .stoch-btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.9;
+    }
+
+    .stoch-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+      transform: none;
+    }
+
+    .stoch-refresh-btn {
+      background: var(--accent);
+      color: #082f49;
+    }
+
+    .stoch-telegram-btn {
+      background: var(--success);
+      color: #052e16;
+    }
+
+    .stoch-archive-btn {
+      background: var(--warning);
+      color: #451a03;
+    }
+
+    .stoch-clear-archive-btn {
+      background: var(--danger);
+      color: #450a0a;
+    }
+
+    .stoch-status {
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      min-height: 22px;
+      line-height: 1.7;
+    }
+
+    .stoch-status.ok { color: var(--success); }
+    .stoch-status.error { color: var(--danger); }
+    .stoch-status.warn { color: var(--warning); }
+
+    .stoch-table-container {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card-2);
+    }
+
+    table.stoch-result-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1480px;
+    }
+
+    .stoch-result-table th,
+    .stoch-result-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .stoch-result-table th {
+      background: #020617;
+      color: var(--accent);
+      font-size: 14px;
+    }
+
+    .stoch-result-table td {
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .stoch-result-table tr:last-child td { border-bottom: 0; }
+
+    .stoch-empty-row td {
+      color: var(--muted);
+      padding: 24px;
+    }
+
+    .stoch-badge,
+    .stoch-combo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .stoch-badge {
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .stoch-combo-badge {
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    .stoch-falcon-class {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .stoch-falcon-class.strong {
+      background: rgba(34, 197, 94, 0.14);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.30);
+    }
+
+    .stoch-falcon-class.risky {
+      background: rgba(245, 158, 11, 0.14);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.30);
+    }
+
+    .stoch-falcon-note.data-issue {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .stoch-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .stoch-settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .stoch-field label {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .stoch-field input {
+      width: 100%;
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 12px;
+      outline: none;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .stoch-field input:focus { border-color: var(--accent); }
+
+    .stoch-decision {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stoch-decision.ok {
+      color: var(--success);
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.28);
+    }
+
+    .stoch-decision.bad {
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.28);
+    }
+
+    .stoch-decision.neutral {
+      color: var(--muted);
+      background: rgba(156, 163, 175, 0.1);
+      border: 1px solid rgba(156, 163, 175, 0.22);
+    }
+
+    @media (max-width: 720px) {
+      .stoch-settings-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="stoch-page">
+    <section class="stoch-header">
+      <h1>الصقور</h1>
+    </section>
+
+    <section class="stoch-card stoch-hidden" aria-hidden="true">
+      <div class="stoch-title-wrap">
+        <h2>إعدادات المنصة / Supabase</h2>
+        <span>ضع رابط Supabase و Anon Key هنا للتجربة. سيتم حفظها محليًا في المتصفح.</span>
+      </div>
+
+      <div class="stoch-settings-grid">
+        <div class="stoch-field">
+          <label for="stoch-supabase-url">Supabase URL</label>
+          <input id="stoch-supabase-url" type="text" placeholder="https://xxxxx.supabase.co" autocomplete="off" />
+        </div>
+
+        <div class="stoch-field">
+          <label for="stoch-supabase-key">Supabase Anon Key</label>
+          <input id="stoch-supabase-key" type="password" placeholder="eyJhbGciOi..." autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="stoch-note">
+        هذه الطريقة مناسبة للاختبار المحلي فقط. في النسخة النهائية الأفضل إخفاء المفاتيح عبر Backend أو Edge Function.
+      </div>
+    </section>
+
+    <section class="stoch-card">
+      <div class="stoch-toolbar">
+        <div class="stoch-title-wrap">
+          <h2>قائمة الصقور</h2>
+        </div>
+
+        <div class="stoch-actions">
+          <button id="stoch-refresh-btn" class="stoch-btn stoch-refresh-btn" type="button">
+            تحديث البيانات
+          </button>
+          <button id="stoch-archive-btn" class="stoch-btn stoch-archive-btn" type="button" disabled>
+            أرشفة فرص اليوم
+          </button>
+          <button id="stoch-telegram-btn" class="stoch-btn stoch-telegram-btn" type="button" disabled>
+            إرسال إلى تيليجرام
+          </button>
+        </div>
+      </div>
+
+      <div id="stoch-status" class="stoch-status"></div>
+
+      <div class="stoch-table-container">
+        <table class="stoch-result-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>الشركة</th>
+              <th>تصنيف الصقر</th>
+              <th>ملاحظة الصقر</th>
+              <th>التاريخ</th>
+              <th>الخوارزمية</th>
+              <th>k</th>
+              <th>D</th>
+              <th>الفرق K-D</th>
+              <th>معامل الحجم</th>
+              <th>موقع الإغلاق</th>
+              <th>مدى اليوم %</th>
+              <th>القرار</th>
+            </tr>
+          </thead>
+          <tbody id="stoch-result-body">
+            <tr class="stoch-empty-row">
+              <td colspan="13">جاري التحميل...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="stoch-card">
+      <div class="stoch-toolbar">
+        <div class="stoch-title-wrap">
+          <h2>أرشيف الصقور</h2>
+          <span>الفرص التي تم حفظها يدويًا للمراجعة والمتابعة.</span>
+        </div>
+
+        <div class="stoch-actions">
+          <button id="stoch-clear-archive-btn" class="stoch-btn stoch-clear-archive-btn" type="button">
+            مسح الأرشيف
+          </button>
+        </div>
+      </div>
+
+      <div class="stoch-table-container">
+        <table class="stoch-result-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>تاريخ الأرشفة</th>
+              <th>الشركة</th>
+              <th>تصنيف الصقر</th>
+              <th>ملاحظة الصقر</th>
+              <th>تاريخ الفرصة</th>
+              <th>الخوارزمية</th>
+              <th>k</th>
+              <th>D</th>
+              <th>الفرق K-D</th>
+              <th>معامل الحجم</th>
+              <th>موقع الإغلاق</th>
+              <th>مدى اليوم %</th>
+            </tr>
+          </thead>
+          <tbody id="stoch-archive-body">
+            <tr class="stoch-empty-row">
+              <td colspan="13">لا توجد فرص مؤرشفة بعد</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="stoch-card">
+      <div class="stoch-title-wrap">
+        <h2>إعدادات تيليجرام</h2>
+        <span>ضع Bot Token و Chat ID للتجربة. الإرسال لا يتم تلقائيًا، فقط عند الضغط على زر الإرسال.</span>
+      </div>
+
+      <div class="stoch-settings-grid">
+        <div class="stoch-field">
+          <label for="stoch-telegram-token">Telegram Bot Token</label>
+          <input id="stoch-telegram-token" type="password" placeholder="مثال: 123456:ABC..." autocomplete="off" />
+        </div>
+
+        <div class="stoch-field">
+          <label for="stoch-telegram-chat-id">Telegram Chat ID</label>
+          <input id="stoch-telegram-chat-id" type="text" placeholder="مثال: 123456789 أو @channelname" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="stoch-note">
+        تنبيه أمني: وضع Bot Token داخل صفحة HTML أمامية مناسب للاختبار المحلي فقط.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STOCH_STORAGE_KEYS = {
+      supabaseUrl: "stoch_supabase_url",
+      supabaseAnonKey: "stoch_supabase_anon_key",
+      telegramToken: "stoch_telegram_token",
+      telegramChatId: "stoch_telegram_chat_id"
+    };
+
+    const STOCH_ARCHIVE_STORAGE_KEY = "stoch_falcons_archive";
+
+    const STOCH_PRIMARY_STRATEGY = "c534";
+    const STOCH_PERIOD_K = 14;
+    const STOCH_SMOOTH_K = 1;
+    const STOCH_PERIOD_D = 3;
+
+    // مهم: هذا عدد أسطر strategy_results وليس عدد الفرص.
+    // إذا كانت الفرص كثيرة وكل فرصة لها عدة استراتيجيات، ارفع الرقم إلى 200 أو 300.
+    const STOCH_SIGNAL_SEARCH_LIMIT = 200;
+
+    const GOLDEN_FALCONS = [
+      "MU", "TSLA", "ARM", "MDB", "BABA", "NVDA", "FSLR", "AMD", "MRVL"
+    ];
+
+    const RISKY_FALCONS = [
+      "MSTR", "AVGO", "PLTR", "SMCI", "SNOW", "SNAP", "QCOM", "AMAT",
+      "ABBV", "AMZN", "CVNA", "CAT", "LLY", "ABNB", "CRWD"
+    ];
+
+    const ALL_FALCONS = [...GOLDEN_FALCONS, ...RISKY_FALCONS];
+
+    const HIGH_RISK_FALCONS = ["MSTR", "SMCI", "PLTR", "SNAP"];
+    const DATA_ISSUE_FALCONS = ["CVNA"];
+
+    const STOCH_CONFIG = {
+      signalsTable: "strategy_results",
+      signalSymbolColumn: "symbol",
+      signalDateColumn: "date",
+      signalStrategyColumn: "strategy",
+
+      pricesTable: "polygon_market",
+      priceSymbolColumn: "symbol",
+      priceDateColumn: "from_date",
+      priceHighColumn: "high",
+      priceLowColumn: "low",
+      priceCloseColumn: "close",
+      priceVolumeColumn: "volume"
+    };
+
+    let stochSupabaseClient = null;
+    let stochLatestResults = [];
+
+    const stochSupabaseUrlEl = document.getElementById("stoch-supabase-url");
+    const stochSupabaseKeyEl = document.getElementById("stoch-supabase-key");
+    const stochStatusEl = document.getElementById("stoch-status");
+    const stochResultBodyEl = document.getElementById("stoch-result-body");
+    const stochArchiveBodyEl = document.getElementById("stoch-archive-body");
+    const stochRefreshBtn = document.getElementById("stoch-refresh-btn");
+    const stochArchiveBtn = document.getElementById("stoch-archive-btn");
+    const stochTelegramBtn = document.getElementById("stoch-telegram-btn");
+    const stochClearArchiveBtn = document.getElementById("stoch-clear-archive-btn");
+    const stochTelegramTokenEl = document.getElementById("stoch-telegram-token");
+    const stochTelegramChatIdEl = document.getElementById("stoch-telegram-chat-id");
+
+    function stochSetStatus(message, type = "") {
+      stochStatusEl.textContent = message;
+      stochStatusEl.className = `stoch-status ${type}`.trim();
+    }
+
+    function stochEscapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function stochFormatDate(value) {
+      if (!value) return "";
+      return String(value).slice(0, 10);
+    }
+
+    function stochFormatNumber(value) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
+      return Number(value).toFixed(2);
+    }
+
+    function stochFormatPercent(value) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
+      return `${(Number(value) * 100).toFixed(2)}%`;
+    }
+
+    function stochToNumber(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function stochNormalizeSymbol(symbol) {
+      return String(symbol || "").trim().toUpperCase();
+    }
+
+    function stochGetFalconClass(symbol) {
+      const s = stochNormalizeSymbol(symbol);
+
+      if (GOLDEN_FALCONS.includes(s)) {
+        return "فرصة قوية";
+      }
+
+      if (RISKY_FALCONS.includes(s)) {
+        return "فرصة خطيرة";
+      }
+
+      return "خارج قائمة الصقور";
+    }
+
+    function stochGetFalconNote(symbol) {
+      const s = stochNormalizeSymbol(symbol);
+
+      if (GOLDEN_FALCONS.includes(s)) {
+        return "ذهبية - متوازنة";
+      }
+
+      if (DATA_ISSUE_FALCONS.includes(s)) {
+        return "مستبعدة - مشكلة بيانات";
+      }
+
+      if (HIGH_RISK_FALCONS.includes(s)) {
+        return "خطيرة - عالية المخاطرة";
+      }
+
+      if (RISKY_FALCONS.includes(s)) {
+        return "خطيرة - أداء ضعيف";
+      }
+
+      return "خارج القائمة";
+    }
+
+    function stochGetFalconClassCss(falconClass) {
+      if (falconClass === "فرصة قوية") return "strong";
+      if (falconClass === "فرصة خطيرة") return "risky";
+      return "";
+    }
+
+    function stochGetFalconNoteCss(falconNote) {
+      if (falconNote === "مستبعدة - مشكلة بيانات") return "data-issue";
+      return "";
+    }
+
+    function stochGetDecision(k, d) {
+      if (!Number.isFinite(k) || !Number.isFinite(d)) {
+        return { text: "-", className: "neutral" };
+      }
+
+      if (k > d) {
+        return { text: "✓", className: "ok" };
+      }
+
+      if (k < d) {
+        return { text: "✕", className: "bad" };
+      }
+
+      return { text: "-", className: "neutral" };
+    }
+
+    function stochRenderEmpty(message) {
+      stochResultBodyEl.innerHTML = `
+        <tr class="stoch-empty-row">
+          <td colspan="13">${stochEscapeHtml(message)}</td>
+        </tr>
+      `;
+    }
+
+    function stochRenderResults(rows) {
+      if (!rows || rows.length === 0) {
+        stochRenderEmpty("لا توجد فرص مطابقة");
+        return;
+      }
+
+      stochResultBodyEl.innerHTML = rows.map((row, index) => {
+        const decision = stochGetDecision(row.k, row.d);
+        const falconClassCss = stochGetFalconClassCss(row.falcon_class);
+        const falconNoteCss = stochGetFalconNoteCss(row.falcon_note);
+
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td><span class="stoch-badge">${stochEscapeHtml(row.symbol)}</span></td>
+            <td><span class="stoch-falcon-class ${falconClassCss}">${stochEscapeHtml(row.falcon_class)}</span></td>
+            <td><span class="stoch-falcon-note ${falconNoteCss}">${stochEscapeHtml(row.falcon_note)}</span></td>
+            <td>${stochEscapeHtml(stochFormatDate(row.signalDate))}</td>
+            <td><span class="stoch-combo-badge">${stochEscapeHtml(row.strategiesText)}</span></td>
+            <td>${stochEscapeHtml(stochFormatNumber(row.k))}</td>
+            <td>${stochEscapeHtml(stochFormatNumber(row.d))}</td>
+            <td>${stochEscapeHtml(stochFormatNumber(row.stoch_gap))}</td>
+            <td>${stochEscapeHtml(stochFormatNumber(row.volume_ratio_20d))}</td>
+            <td>${stochEscapeHtml(stochFormatPercent(row.close_position))}</td>
+            <td>${stochEscapeHtml(stochFormatPercent(row.daily_range_pct))}</td>
+            <td><span class="stoch-decision ${decision.className}">${decision.text}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function stochLoadArchive() {
+      try {
+        const raw = localStorage.getItem(STOCH_ARCHIVE_STORAGE_KEY);
+        const archive = raw ? JSON.parse(raw) : [];
+        return Array.isArray(archive) ? archive : [];
+      } catch (error) {
+        console.error("Archive load error:", error);
+        return [];
+      }
+    }
+
+    function stochSaveArchive(archive) {
+      localStorage.setItem(STOCH_ARCHIVE_STORAGE_KEY, JSON.stringify(archive));
+    }
+
+    function stochBuildArchiveKey(row) {
+      return `${stochNormalizeSymbol(row.symbol)}__${stochFormatDate(row.signalDate)}`;
+    }
+
+    function stochRenderArchive(archiveRows = stochLoadArchive()) {
+      if (!archiveRows || archiveRows.length === 0) {
+        stochArchiveBodyEl.innerHTML = `
+          <tr class="stoch-empty-row">
+            <td colspan="13">لا توجد فرص مؤرشفة بعد</td>
+          </tr>
+        `;
+        return;
+      }
+
+      stochArchiveBodyEl.innerHTML = archiveRows.map((row, index) => {
+        const falconClassCss = stochGetFalconClassCss(row.falcon_class);
+        const falconNoteCss = stochGetFalconNoteCss(row.falcon_note);
+
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${stochEscapeHtml(stochFormatDate(row.archivedAt || row.archiveDate))}</td>
+            <td><span class="stoch-badge">${stochEscapeHtml(row.symbol)}</span></td>
+            <td>
+              <span class="stoch-falcon-class ${falconClassCss}">
+                ${stochEscapeHtml(row.falcon_class)}
+              </span>
+            </td>
+            <td>
+              <span class="stoch-falcon-note ${falconNoteCss}">
+                ${stochEscapeHtml(row.falcon_note)}
+              </span>
+            </td>
+            <td>${stochEscapeHtml(stochFormatDate(row.signalDate))}</td>
+            <td><span class="stoch-combo-badge">${stochEscapeHtml(row.strategiesText)}</span></td>
+            <td>${stochEscapeHtml(stochFormatNumber(row.k))}</td>
+            <td>${stochEscapeHtml(stochFormatNumber(row.d))}</td>
+            <td>${stochEscapeHtml(stochFormatNumber(row.stoch_gap))}</td>
+            <td>${stochEscapeHtml(stochFormatNumber(row.volume_ratio_20d))}</td>
+            <td>${stochEscapeHtml(stochFormatPercent(row.close_position))}</td>
+            <td>${stochEscapeHtml(stochFormatPercent(row.daily_range_pct))}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function stochArchiveLatestResults() {
+      if (!stochLatestResults || stochLatestResults.length === 0) {
+        stochSetStatus("لا توجد فرص حالية للأرشفة.", "warn");
+        return;
+      }
+
+      const archive = stochLoadArchive();
+      const existingKeys = new Set(
+        archive.map((item) => stochBuildArchiveKey(item))
+      );
+
+      const archivedAt = new Date().toISOString();
+
+      const newItems = stochLatestResults
+        .filter((row) => !existingKeys.has(stochBuildArchiveKey(row)))
+        .map((row) => ({
+          ...row,
+          archivedAt,
+          archiveDate: stochFormatDate(archivedAt)
+        }));
+
+      if (newItems.length === 0) {
+        stochSetStatus("كل الفرص الحالية موجودة مسبقًا في الأرشيف.", "warn");
+        return;
+      }
+
+      const updatedArchive = [...newItems, ...archive];
+
+      stochSaveArchive(updatedArchive);
+      stochRenderArchive(updatedArchive);
+
+      stochSetStatus(`تمت أرشفة ${newItems.length} فرصة بنجاح.`, "ok");
+    }
+
+    function stochClearArchive() {
+      const confirmed = window.confirm("هل تريد مسح أرشيف الصقور بالكامل؟");
+
+      if (!confirmed) return;
+
+      localStorage.removeItem(STOCH_ARCHIVE_STORAGE_KEY);
+      stochRenderArchive([]);
+      stochSetStatus("تم مسح أرشيف الصقور.", "ok");
+    }
+
+    function stochLoadLocalSettings() {
+      stochSupabaseUrlEl.value = localStorage.getItem(STOCH_STORAGE_KEYS.supabaseUrl) || "";
+      stochSupabaseKeyEl.value = localStorage.getItem(STOCH_STORAGE_KEYS.supabaseAnonKey) || "";
+      stochTelegramTokenEl.value = localStorage.getItem(STOCH_STORAGE_KEYS.telegramToken) || "";
+      stochTelegramChatIdEl.value = localStorage.getItem(STOCH_STORAGE_KEYS.telegramChatId) || "";
+    }
+
+    function stochSaveLocalSettings() {
+      localStorage.setItem(STOCH_STORAGE_KEYS.supabaseUrl, stochSupabaseUrlEl.value.trim());
+      localStorage.setItem(STOCH_STORAGE_KEYS.supabaseAnonKey, stochSupabaseKeyEl.value.trim());
+      localStorage.setItem(STOCH_STORAGE_KEYS.telegramToken, stochTelegramTokenEl.value.trim());
+      localStorage.setItem(STOCH_STORAGE_KEYS.telegramChatId, stochTelegramChatIdEl.value.trim());
+    }
+
+    function stochCreateSupabaseClientFromInputs() {
+      const url = stochSupabaseUrlEl.value.trim();
+      const anonKey = stochSupabaseKeyEl.value.trim();
+
+      if (!url || !anonKey) {
+        throw new Error("ضع Supabase URL و Supabase Anon Key أولًا.");
+      }
+
+      stochSaveLocalSettings();
+      stochSupabaseClient = supabase.createClient(url, anonKey);
+      return stochSupabaseClient;
+    }
+
+    function stochPickFirstExistingColumn(availableColumns, candidates) {
+      return candidates.find((column) => availableColumns.includes(column));
+    }
+
+    async function stochFetchLatestMatchingSignals() {
+      const cfg = STOCH_CONFIG;
+
+      const { data: sampleData, error: sampleError } = await stochSupabaseClient
+        .from(cfg.signalsTable)
+        .select("*")
+        .limit(1);
+
+      if (sampleError) {
+        throw new Error(`خطأ في قراءة جدول الفرص: ${sampleError.message}`);
+      }
+
+      if (!sampleData || sampleData.length === 0) {
+        return [];
+      }
+
+      const availableColumns = Object.keys(sampleData[0]);
+
+      const symbolColumn = stochPickFirstExistingColumn(availableColumns, [cfg.signalSymbolColumn, "symbol", "ticker"]);
+      const dateColumn = stochPickFirstExistingColumn(availableColumns, [cfg.signalDateColumn, "date", "signal_date", "trade_date", "created_at"]);
+      const strategyColumn = stochPickFirstExistingColumn(availableColumns, [cfg.signalStrategyColumn, "strategy", "combo_name", "strategy_combo", "combo", "strategies"]);
+      const secondarySortColumn = stochPickFirstExistingColumn(availableColumns, ["created_at", "updated_at", "id"]);
+
+      if (!symbolColumn || !dateColumn || !strategyColumn) {
+        throw new Error(`تعذر تحديد أعمدة جدول الفرص. الأعمدة الموجودة هي: ${availableColumns.join(", ")}`);
+      }
+
+      let query = stochSupabaseClient
+        .from(cfg.signalsTable)
+        .select("*")
+        .order(dateColumn, { ascending: false });
+
+      if (secondarySortColumn && secondarySortColumn !== dateColumn) {
+        query = query.order(secondarySortColumn, { ascending: false });
+      }
+
+      const { data, error } = await query.limit(STOCH_SIGNAL_SEARCH_LIMIT);
+
+      if (error) {
+        throw new Error(`خطأ في جلب آخر الفرص: ${error.message}`);
+      }
+
+      if (!data || data.length === 0) {
+        return [];
+      }
+
+      const groups = stochGroupSignalRows(data, symbolColumn, dateColumn, strategyColumn);
+      const matchedGroups = groups.filter((group) => stochGroupHasPrimaryStrategy(group.strategies));
+
+      if (matchedGroups.length === 0) {
+        return [];
+      }
+
+      const latestDate = matchedGroups[0].signalDate;
+      return matchedGroups.filter((group) => group.signalDate === latestDate);
+    }
+
+    function stochGroupSignalRows(rows, symbolColumn, dateColumn, strategyColumn) {
+      const groupsMap = new Map();
+
+      rows.forEach((row) => {
+        const symbol = String(row[symbolColumn] || "").trim();
+        const signalDate = stochFormatDate(row[dateColumn]);
+        const strategy = String(row[strategyColumn] || "").trim();
+
+        if (!symbol || !signalDate || !strategy) return;
+
+        const key = `${symbol}__${signalDate}`;
+
+        if (!groupsMap.has(key)) {
+          groupsMap.set(key, {
+            symbol,
+            signalDate,
+            strategies: [],
+            strategySet: new Set()
+          });
+        }
+
+        const group = groupsMap.get(key);
+        const normalizedStrategy = strategy.toLowerCase();
+
+        if (!group.strategySet.has(normalizedStrategy)) {
+          group.strategySet.add(normalizedStrategy);
+          group.strategies.push(strategy);
+        }
+      });
+
+      return Array.from(groupsMap.values());
+    }
+
+    function stochGroupHasPrimaryStrategy(strategies) {
+      const normalizedStrategies = strategies.map((strategy) => String(strategy || "").trim().toLowerCase());
+      return normalizedStrategies.includes(STOCH_PRIMARY_STRATEGY.toLowerCase());
+    }
+
+    async function stochFetchPriceHistory(symbol, signalDate) {
+      const cfg = STOCH_CONFIG;
+
+      const { data, error } = await stochSupabaseClient
+        .from(cfg.pricesTable)
+        .select(`${cfg.priceDateColumn}, ${cfg.priceHighColumn}, ${cfg.priceLowColumn}, ${cfg.priceCloseColumn}, ${cfg.priceVolumeColumn}`)
+        .eq(cfg.priceSymbolColumn, symbol)
+        .lte(cfg.priceDateColumn, stochFormatDate(signalDate))
+        .order(cfg.priceDateColumn, { ascending: false })
+        .limit(60);
+
+      if (error) {
+        throw new Error(`خطأ في جلب بيانات الأسعار للرمز ${symbol}: ${error.message}`);
+      }
+
+      if (!data || data.length === 0) {
+        return [];
+      }
+
+      return data
+        .map((row) => ({
+          date: row[cfg.priceDateColumn],
+          high: Number(row[cfg.priceHighColumn]),
+          low: Number(row[cfg.priceLowColumn]),
+          close: Number(row[cfg.priceCloseColumn]),
+          volume: Number(row[cfg.priceVolumeColumn])
+        }))
+        .filter((row) => (
+          row.date &&
+          Number.isFinite(row.high) &&
+          Number.isFinite(row.low) &&
+          Number.isFinite(row.close) &&
+          Number.isFinite(row.volume)
+        ))
+        .reverse();
+    }
+
+    function stochCalculateFalconFactors(priceRows) {
+      if (!Array.isArray(priceRows) || priceRows.length === 0) {
+        return {
+          volumeRatio20d: null,
+          closePosition: null,
+          dailyRangePct: null,
+          reason: "لا توجد بيانات أسعار كافية لحساب معاملات الصقور."
+        };
+      }
+
+      const lastRow = priceRows[priceRows.length - 1];
+
+      const high = stochToNumber(lastRow.high);
+      const low = stochToNumber(lastRow.low);
+      const close = stochToNumber(lastRow.close);
+      const volume = stochToNumber(lastRow.volume);
+
+      const last20Rows = priceRows.slice(-20);
+      const validVolumes = last20Rows
+        .map((row) => stochToNumber(row.volume))
+        .filter((value) => value !== null && value > 0);
+
+      const volumeAvg20d = validVolumes.length > 0
+        ? validVolumes.reduce((sum, value) => sum + value, 0) / validVolumes.length
+        : null;
+
+      const volumeRatio20d = volumeAvg20d && volume
+        ? volume / volumeAvg20d
+        : null;
+
+      const range = high !== null && low !== null ? high - low : null;
+
+      const closePosition = range && range > 0 && close !== null
+        ? (close - low) / range
+        : null;
+
+      const dailyRangePct = close && range !== null && range > 0
+        ? range / close
+        : null;
+
+      return {
+        volume,
+        volumeAvg20d,
+        volumeRatio20d,
+        closePosition,
+        dailyRangePct,
+        reason: null
+      };
+    }
+
+    function stochCalculate143(priceRows) {
+      const minRows = STOCH_PERIOD_K + STOCH_PERIOD_D - 1;
+
+      if (!Array.isArray(priceRows) || priceRows.length < minRows) {
+        return {
+          k: null,
+          d: null,
+          reason: `بيانات الأسعار غير كافية. نحتاج على الأقل ${minRows} شمعة تداول.`
+        };
+      }
+
+      const rawKValues = [];
+
+      for (let i = 0; i < priceRows.length; i++) {
+        if (i < STOCH_PERIOD_K - 1) {
+          rawKValues.push(null);
+          continue;
+        }
+
+        const windowRows = priceRows.slice(i - STOCH_PERIOD_K + 1, i + 1);
+        const highestHigh = Math.max(...windowRows.map((row) => row.high));
+        const lowestLow = Math.min(...windowRows.map((row) => row.low));
+        const close = priceRows[i].close;
+        const range = highestHigh - lowestLow;
+
+        rawKValues.push(range === 0 ? null : 100 * (close - lowestLow) / range);
+      }
+
+      const kValues = stochSimpleMovingAverage(rawKValues, STOCH_SMOOTH_K);
+      const dValues = stochSimpleMovingAverage(kValues, STOCH_PERIOD_D);
+
+      return {
+        k: kValues[kValues.length - 1],
+        d: dValues[dValues.length - 1],
+        reason: null
+      };
+    }
+
+    function stochSimpleMovingAverage(values, length) {
+      return values.map((_, index) => {
+        if (index < length - 1) return null;
+
+        const windowValues = values.slice(index - length + 1, index + 1);
+
+        if (windowValues.some((value) => value === null || value === undefined || Number.isNaN(value))) {
+          return null;
+        }
+
+        const sum = windowValues.reduce((acc, value) => acc + value, 0);
+        return sum / length;
+      });
+    }
+
+    function stochPassesFalconFilters(row) {
+      const symbol = stochNormalizeSymbol(row.symbol);
+
+      const k = stochToNumber(row.k);
+      const d = stochToNumber(row.d);
+      const stochGap = stochToNumber(row.stoch_gap);
+      const volumeRatio20d = stochToNumber(row.volume_ratio_20d);
+      const closePosition = stochToNumber(row.close_position);
+      const dailyRangePct = stochToNumber(row.daily_range_pct);
+
+      return (
+        ALL_FALCONS.includes(symbol) &&
+        k !== null &&
+        d !== null &&
+        stochGap !== null &&
+        volumeRatio20d !== null &&
+        closePosition !== null &&
+        dailyRangePct !== null &&
+        k > d &&
+        stochGap >= 4 &&
+        volumeRatio20d >= 0.80 &&
+        closePosition >= 0.50 &&
+        dailyRangePct >= 0.02
+      );
+    }
+
+    async function stochLoadLatestComboSignals() {
+      try {
+        stochRefreshBtn.disabled = true;
+        stochTelegramBtn.disabled = true;
+        stochArchiveBtn.disabled = true;
+        stochLatestResults = [];
+
+        stochCreateSupabaseClientFromInputs();
+        stochSetStatus("جاري جلب الفرص وحساب قيم K و D...");
+        stochRenderEmpty("جاري التحميل...");
+
+        const matchingSignals = await stochFetchLatestMatchingSignals();
+
+        if (!matchingSignals || matchingSignals.length === 0) {
+          stochSetStatus(`لا توجد فرصة حديثة تحتوي على ${STOCH_PRIMARY_STRATEGY} ضمن آخر ${STOCH_SIGNAL_SEARCH_LIMIT} سطر.`, "warn");
+          stochRenderEmpty("لا توجد فرصة متاحة");
+          return;
+        }
+
+        const results = [];
+        const warnings = [];
+
+        for (const signal of matchingSignals) {
+          const prices = await stochFetchPriceHistory(signal.symbol, signal.signalDate);
+          const stochResult = stochCalculate143(prices);
+          const falconFactors = stochCalculateFalconFactors(prices);
+          const stochGap = (
+            Number.isFinite(stochResult.k) && Number.isFinite(stochResult.d)
+          )
+            ? stochResult.k - stochResult.d
+            : null;
+
+          results.push({
+            symbol: stochNormalizeSymbol(signal.symbol),
+            signalDate: signal.signalDate,
+            strategiesText: signal.strategies.join("+"),
+            k: stochResult.k,
+            d: stochResult.d,
+            stoch_gap: stochGap,
+            volume_ratio_20d: falconFactors.volumeRatio20d,
+            close_position: falconFactors.closePosition,
+            daily_range_pct: falconFactors.dailyRangePct,
+            falcon_class: stochGetFalconClass(signal.symbol),
+            falcon_note: stochGetFalconNote(signal.symbol)
+          });
+
+          if (stochResult.reason) {
+            warnings.push(`${signal.symbol}: ${stochResult.reason}`);
+          }
+
+          if (falconFactors.reason) {
+            warnings.push(`${signal.symbol}: ${falconFactors.reason}`);
+          }
+        }
+
+        console.log("Falcons before filter:", results.length);
+
+        const filteredResults = results
+          .filter(stochPassesFalconFilters)
+          .map((row) => ({
+            ...row,
+            falcon_class: stochGetFalconClass(row.symbol),
+            falcon_note: stochGetFalconNote(row.symbol)
+          }));
+
+        console.log("Falcons after filter:", filteredResults.length);
+
+        stochLatestResults = filteredResults;
+        stochRenderResults(filteredResults);
+        stochTelegramBtn.disabled = filteredResults.length === 0;
+        stochArchiveBtn.disabled = filteredResults.length === 0;
+
+        if (warnings.length > 0) {
+          stochSetStatus(`تم عرض ${filteredResults.length} فرصة، لكن توجد ملاحظات على بعض الحسابات.`, "warn");
+        } else {
+          stochSetStatus(`تم تحميل ${filteredResults.length} فرصة وحساب القيم بنجاح.`, "ok");
+        }
+      } catch (error) {
+        console.error(error);
+        stochSetStatus(error.message || "حدث خطأ غير معروف.", "error");
+        stochRenderEmpty("تعذر تحميل البيانات");
+      } finally {
+        stochRefreshBtn.disabled = false;
+      }
+    }
+
+    function stochBuildTelegramMessage(results) {
+      const rows = Array.isArray(results) ? results : [results];
+
+      const lines = [
+        "🚨 فرص Stoch",
+        "",
+        "الإعدادات: Stoch 14,1,3",
+        ""
+      ];
+
+      rows.forEach((result, index) => {
+        lines.push(
+          `${index + 1}) ${result.symbol}`,
+          `التاريخ: ${stochFormatDate(result.signalDate)}`,
+          `الاستراتيجيات: ${result.strategiesText}`,
+          `تصنيف: ${result.falcon_class}`,
+          `ملاحظة: ${result.falcon_note}`,
+          `K: ${stochFormatNumber(result.k)}`,
+          `D: ${stochFormatNumber(result.d)}`,
+          `K-D: ${stochFormatNumber(result.stoch_gap)}`,
+          `Volume Ratio 20D: ${stochFormatNumber(result.volume_ratio_20d)}`,
+          `Close Position: ${stochFormatPercent(result.close_position)}`,
+          `Daily Range: ${stochFormatPercent(result.daily_range_pct)}`,
+          ""
+        );
+      });
+
+      return lines.join("\n");
+    }
+
+    async function stochSendLatestResultsToTelegram() {
+      try {
+        stochSaveLocalSettings();
+
+        if (!stochLatestResults || stochLatestResults.length === 0) {
+          stochSetStatus("لا توجد نتائج جاهزة للإرسال. حدّث البيانات أولًا.", "warn");
+          return;
+        }
+
+        const token = stochTelegramTokenEl.value.trim();
+        const chatId = stochTelegramChatIdEl.value.trim();
+
+        if (!token || !chatId) {
+          stochSetStatus("ضع Telegram Bot Token و Chat ID قبل الإرسال.", "warn");
+          return;
+        }
+
+        stochTelegramBtn.disabled = true;
+        stochSetStatus("جاري إرسال الفرص إلى تيليجرام...");
+
+        const message = stochBuildTelegramMessage(stochLatestResults);
+        const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: chatId, text: message })
+        });
+
+        const telegramResult = await response.json();
+
+        if (!response.ok || !telegramResult.ok) {
+          throw new Error(telegramResult.description || "فشل إرسال الرسالة إلى تيليجرام.");
+        }
+
+        stochSetStatus("تم إرسال الفرص إلى تيليجرام بنجاح.", "ok");
+      } catch (error) {
+        console.error(error);
+        stochSetStatus(error.message || "حدث خطأ أثناء الإرسال إلى تيليجرام.", "error");
+      } finally {
+        stochTelegramBtn.disabled = !stochLatestResults || stochLatestResults.length === 0;
+      }
+    }
+
+    stochRefreshBtn.addEventListener("click", stochLoadLatestComboSignals);
+    stochArchiveBtn.addEventListener("click", stochArchiveLatestResults);
+    stochTelegramBtn.addEventListener("click", stochSendLatestResultsToTelegram);
+    stochClearArchiveBtn.addEventListener("click", stochClearArchive);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      stochLoadLocalSettings();
+      stochRenderArchive();
+      stochLoadLatestComboSignals();
+    });
+  </script>
+</body>
+</html>
