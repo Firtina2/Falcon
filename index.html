@@ -125,11 +125,6 @@
       color: #451a03;
     }
 
-    .stoch-pdf-btn {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
     .stoch-clear-archive-btn {
       background: var(--danger);
       color: #450a0a;
@@ -309,7 +304,7 @@
 <body>
   <main class="stoch-page">
     <section class="stoch-header">
-      <h1>الصقور - Falcons</h1>
+      <h1>الصقور</h1>
     </section>
 
     <section class="stoch-card stoch-hidden" aria-hidden="true">
@@ -338,7 +333,7 @@
     <section class="stoch-card">
       <div class="stoch-toolbar">
         <div class="stoch-title-wrap">
-          <h2>قائمة الصقور - Falcons List</h2>
+          <h2>قائمة الصقور</h2>
         </div>
 
         <div class="stoch-actions">
@@ -350,9 +345,6 @@
           </button>
           <button id="stoch-telegram-btn" class="stoch-btn stoch-telegram-btn" type="button" disabled>
             إرسال إلى تيليجرام
-          </button>
-          <button id="stoch-results-pdf-btn" class="stoch-btn stoch-pdf-btn" type="button">
-            تصدير PDF
           </button>
         </div>
       </div>
@@ -390,57 +382,13 @@
     <section class="stoch-card">
       <div class="stoch-toolbar">
         <div class="stoch-title-wrap">
-          <h2>قائمة الصقور الأولية - Initial Falcons List</h2>
-        </div>
-
-        <div class="stoch-actions">
-          <button id="stoch-before-close-position-pdf-btn" class="stoch-btn stoch-pdf-btn" type="button">
-            تصدير PDF
-          </button>
-        </div>
-      </div>
-
-      <div class="stoch-table-container">
-        <table class="stoch-result-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>الشركة</th>
-              <th>تصنيف الصقر</th>
-              <th>ملاحظة الصقر</th>
-              <th>التاريخ</th>
-              <th>الخوارزمية</th>
-              <th>k</th>
-              <th>D</th>
-              <th>الفرق K-D</th>
-              <th>معامل الحجم</th>
-              <th>موقع الإغلاق</th>
-              <th>مدى اليوم %</th>
-              <th>القرار</th>
-            </tr>
-          </thead>
-          <tbody id="stoch-before-close-position-body">
-            <tr class="stoch-empty-row">
-              <td colspan="13">جاري التحميل...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="stoch-card">
-      <div class="stoch-toolbar">
-        <div class="stoch-title-wrap">
-          <h2>أرشيف الصقور - Falcons Archive</h2>
+          <h2>أرشيف الصقور</h2>
           <span>الفرص التي تم حفظها يدويًا للمراجعة والمتابعة.</span>
         </div>
 
         <div class="stoch-actions">
           <button id="stoch-clear-archive-btn" class="stoch-btn stoch-clear-archive-btn" type="button">
             مسح الأرشيف
-          </button>
-          <button id="stoch-archive-pdf-btn" class="stoch-btn stoch-pdf-btn" type="button">
-            تصدير PDF
           </button>
         </div>
       </div>
@@ -554,15 +502,11 @@
     const stochSupabaseKeyEl = document.getElementById("stoch-supabase-key");
     const stochStatusEl = document.getElementById("stoch-status");
     const stochResultBodyEl = document.getElementById("stoch-result-body");
-    const stochBeforeClosePositionBodyEl = document.getElementById("stoch-before-close-position-body");
     const stochArchiveBodyEl = document.getElementById("stoch-archive-body");
     const stochRefreshBtn = document.getElementById("stoch-refresh-btn");
     const stochArchiveBtn = document.getElementById("stoch-archive-btn");
     const stochTelegramBtn = document.getElementById("stoch-telegram-btn");
     const stochClearArchiveBtn = document.getElementById("stoch-clear-archive-btn");
-    const stochResultsPdfBtn = document.getElementById("stoch-results-pdf-btn");
-    const stochBeforeClosePositionPdfBtn = document.getElementById("stoch-before-close-position-pdf-btn");
-    const stochArchivePdfBtn = document.getElementById("stoch-archive-pdf-btn");
     const stochTelegramTokenEl = document.getElementById("stoch-telegram-token");
     const stochTelegramChatIdEl = document.getElementById("stoch-telegram-chat-id");
 
@@ -675,21 +619,13 @@
       `;
     }
 
-    function stochRenderEmptyForBody(bodyEl, message) {
-      bodyEl.innerHTML = `
-        <tr class="stoch-empty-row">
-          <td colspan="13">${stochEscapeHtml(message)}</td>
-        </tr>
-      `;
-    }
-
-    function stochRenderRows(bodyEl, rows, emptyMessage) {
+    function stochRenderResults(rows) {
       if (!rows || rows.length === 0) {
-        stochRenderEmptyForBody(bodyEl, emptyMessage);
+        stochRenderEmpty("لا توجد فرص مطابقة");
         return;
       }
 
-      bodyEl.innerHTML = rows.map((row, index) => {
+      stochResultBodyEl.innerHTML = rows.map((row, index) => {
         const decision = stochGetDecision(row.k, row.d);
         const falconClassCss = stochGetFalconClassCss(row.falcon_class);
         const falconNoteCss = stochGetFalconNoteCss(row.falcon_note);
@@ -712,14 +648,6 @@
           </tr>
         `;
       }).join("");
-    }
-
-    function stochRenderResults(rows) {
-      stochRenderRows(stochResultBodyEl, rows, "لا توجد فرص مطابقة");
-    }
-
-    function stochRenderBeforeClosePositionResults(rows) {
-      stochRenderRows(stochBeforeClosePositionBodyEl, rows, "لا توجد فرص قبل شرط موقع الإغلاق");
     }
 
     function stochLoadArchive() {
@@ -839,72 +767,6 @@
       localStorage.setItem(STOCH_STORAGE_KEYS.telegramChatId, stochTelegramChatIdEl.value.trim());
     }
 
-    function stochExportTableToPdf(title, tableBodyEl) {
-      const table = tableBodyEl.closest("table");
-      const printWindow = window.open("", "_blank", "width=1200,height=800");
-
-      if (!printWindow || !table) {
-        stochSetStatus("تعذر فتح نافذة التصدير. تأكد من السماح بالنوافذ المنبثقة.", "warn");
-        return;
-      }
-
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="ar" dir="rtl">
-        <head>
-          <meta charset="UTF-8" />
-          <title>${stochEscapeHtml(title)}</title>
-          <style>
-            body {
-              margin: 24px;
-              font-family: Arial, Tahoma, sans-serif;
-              color: #111827;
-            }
-
-            h1 {
-              margin: 0 0 16px;
-              text-align: center;
-              font-size: 22px;
-            }
-
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              direction: rtl;
-              font-size: 11px;
-            }
-
-            th,
-            td {
-              border: 1px solid #d1d5db;
-              padding: 8px 6px;
-              text-align: center;
-              white-space: nowrap;
-            }
-
-            th {
-              background: #f3f4f6;
-              color: #111827;
-            }
-
-            @page {
-              size: landscape;
-              margin: 12mm;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>${stochEscapeHtml(title)}</h1>
-          ${table.outerHTML}
-        </body>
-        </html>
-      `);
-
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-    }
-
     function stochCreateSupabaseClientFromInputs() {
       const url = STOCH_SUPABASE_URL.trim() || stochSupabaseUrlEl.value.trim();
       const anonKey = STOCH_SUPABASE_ANON_KEY.trim() || stochSupabaseKeyEl.value.trim();
@@ -951,7 +813,6 @@
       let query = stochSupabaseClient
         .from(cfg.signalsTable)
         .select("*")
-        .eq(strategyColumn, STOCH_PRIMARY_STRATEGY)
         .order(dateColumn, { ascending: false });
 
       if (secondarySortColumn && secondarySortColumn !== dateColumn) {
@@ -977,88 +838,6 @@
 
       const latestDate = matchedGroups[0].signalDate;
       return matchedGroups.filter((group) => group.signalDate === latestDate);
-    }
-
-    async function stochFetchStrategyDisplayMap(signals) {
-      const cfg = STOCH_CONFIG;
-      const strategyDisplayMap = new Map();
-
-      if (!signals || signals.length === 0) {
-        return strategyDisplayMap;
-      }
-
-      const { data: sampleData, error: sampleError } = await stochSupabaseClient
-        .from(cfg.signalsTable)
-        .select("*")
-        .limit(1);
-
-      if (sampleError) {
-        throw new Error(`خطأ في قراءة جدول الفرص لعرض الخوارزميات: ${sampleError.message}`);
-      }
-
-      if (!sampleData || sampleData.length === 0) {
-        return strategyDisplayMap;
-      }
-
-      const availableColumns = Object.keys(sampleData[0]);
-      const symbolColumn = stochPickFirstExistingColumn(availableColumns, [cfg.signalSymbolColumn, "symbol", "ticker"]);
-      const dateColumn = stochPickFirstExistingColumn(availableColumns, [cfg.signalDateColumn, "date", "signal_date", "trade_date", "created_at"]);
-      const strategyColumn = stochPickFirstExistingColumn(availableColumns, [cfg.signalStrategyColumn, "strategy", "combo_name", "strategy_combo", "combo", "strategies"]);
-
-      if (!symbolColumn || !dateColumn || !strategyColumn) {
-        throw new Error(`تعذر تحديد أعمدة عرض الخوارزميات. الأعمدة الموجودة هي: ${availableColumns.join(", ")}`);
-      }
-
-      const symbols = [...new Set(signals.map((signal) => stochNormalizeSymbol(signal.symbol)).filter(Boolean))];
-      const dates = [...new Set(signals.map((signal) => stochFormatDate(signal.signalDate)).filter(Boolean))];
-
-      let query = stochSupabaseClient
-        .from(cfg.signalsTable)
-        .select(`${symbolColumn}, ${dateColumn}, ${strategyColumn}`)
-        .in(symbolColumn, symbols)
-        .order(strategyColumn, { ascending: true })
-        .limit(1000);
-
-      if (dates.length === 1) {
-        query = query.eq(dateColumn, dates[0]);
-      } else {
-        query = query.in(dateColumn, dates);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        throw new Error(`خطأ في جلب خريطة عرض الخوارزميات: ${error.message}`);
-      }
-
-      (data || []).forEach((row) => {
-        const symbol = stochNormalizeSymbol(row[symbolColumn]);
-        const signalDate = stochFormatDate(row[dateColumn]);
-        const strategy = String(row[strategyColumn] || "").trim();
-
-        if (!symbol || !signalDate || !strategy) return;
-
-        const key = `${symbol}|${signalDate}`;
-
-        if (!strategyDisplayMap.has(key)) {
-          strategyDisplayMap.set(key, new Set());
-        }
-
-        strategyDisplayMap.get(key).add(strategy);
-      });
-
-      return strategyDisplayMap;
-    }
-
-    function stochGetStrategyDisplayText(strategyDisplayMap, signal) {
-      const key = `${stochNormalizeSymbol(signal.symbol)}|${stochFormatDate(signal.signalDate)}`;
-      const strategies = strategyDisplayMap.get(key);
-
-      if (!strategies || strategies.size === 0) {
-        return signal.strategies.join(" + ");
-      }
-
-      return Array.from(strategies).join(" + ");
     }
 
     function stochGroupSignalRows(rows, symbolColumn, dateColumn, strategyColumn) {
@@ -1265,29 +1044,6 @@
       );
     }
 
-    function stochPassesFalconFiltersBeforeClosePosition(row) {
-      const symbol = stochNormalizeSymbol(row.symbol);
-
-      const k = stochToNumber(row.k);
-      const d = stochToNumber(row.d);
-      const stochGap = stochToNumber(row.stoch_gap);
-      const volumeRatio20d = stochToNumber(row.volume_ratio_20d);
-      const dailyRangePct = stochToNumber(row.daily_range_pct);
-
-      return (
-        ALL_FALCONS.includes(symbol) &&
-        k !== null &&
-        d !== null &&
-        stochGap !== null &&
-        volumeRatio20d !== null &&
-        dailyRangePct !== null &&
-        k > d &&
-        stochGap >= 4 &&
-        volumeRatio20d >= 0.80 &&
-        dailyRangePct >= 0.02
-      );
-    }
-
     async function stochLoadLatestComboSignals() {
       try {
         stochRefreshBtn.disabled = true;
@@ -1298,18 +1054,15 @@
         stochCreateSupabaseClientFromInputs();
         stochSetStatus("جاري جلب الفرص وحساب قيم K و D...");
         stochRenderEmpty("جاري التحميل...");
-        stochRenderEmptyForBody(stochBeforeClosePositionBodyEl, "جاري التحميل...");
 
         const matchingSignals = await stochFetchLatestMatchingSignals();
 
         if (!matchingSignals || matchingSignals.length === 0) {
           stochSetStatus(`لا توجد فرصة حديثة تحتوي على ${STOCH_PRIMARY_STRATEGY} ضمن آخر ${STOCH_SIGNAL_SEARCH_LIMIT} سطر.`, "warn");
           stochRenderEmpty("لا توجد فرصة متاحة");
-          stochRenderEmptyForBody(stochBeforeClosePositionBodyEl, "لا توجد فرصة متاحة");
           return;
         }
 
-        const strategyDisplayMap = await stochFetchStrategyDisplayMap(matchingSignals);
         const results = [];
         const warnings = [];
 
@@ -1326,7 +1079,7 @@
           results.push({
             symbol: stochNormalizeSymbol(signal.symbol),
             signalDate: signal.signalDate,
-            strategiesText: stochGetStrategyDisplayText(strategyDisplayMap, signal),
+            strategiesText: signal.strategies.join("+"),
             k: stochResult.k,
             d: stochResult.d,
             stoch_gap: stochGap,
@@ -1348,22 +1101,18 @@
 
         console.log("Falcons before filter:", results.length);
 
-        const beforeClosePositionResults = results
-          .filter(stochPassesFalconFiltersBeforeClosePosition)
+        const filteredResults = results
+          .filter(stochPassesFalconFilters)
           .map((row) => ({
             ...row,
             falcon_class: stochGetFalconClass(row.symbol),
             falcon_note: stochGetFalconNote(row.symbol)
           }));
 
-        const filteredResults = beforeClosePositionResults
-          .filter(stochPassesFalconFilters);
-
         console.log("Falcons after filter:", filteredResults.length);
 
         stochLatestResults = filteredResults;
         stochRenderResults(filteredResults);
-        stochRenderBeforeClosePositionResults(beforeClosePositionResults);
         stochTelegramBtn.disabled = filteredResults.length === 0;
         stochArchiveBtn.disabled = filteredResults.length === 0;
 
@@ -1376,7 +1125,6 @@
         console.error(error);
         stochSetStatus(error.message || "حدث خطأ غير معروف.", "error");
         stochRenderEmpty("تعذر تحميل البيانات");
-        stochRenderEmptyForBody(stochBeforeClosePositionBodyEl, "تعذر تحميل البيانات");
       } finally {
         stochRefreshBtn.disabled = false;
       }
@@ -1458,9 +1206,6 @@
     stochArchiveBtn.addEventListener("click", stochArchiveLatestResults);
     stochTelegramBtn.addEventListener("click", stochSendLatestResultsToTelegram);
     stochClearArchiveBtn.addEventListener("click", stochClearArchive);
-    stochResultsPdfBtn.addEventListener("click", () => stochExportTableToPdf("قائمة الصقور - Falcons List", stochResultBodyEl));
-    stochBeforeClosePositionPdfBtn.addEventListener("click", () => stochExportTableToPdf("قائمة الصقور الأولية - Initial Falcons List", stochBeforeClosePositionBodyEl));
-    stochArchivePdfBtn.addEventListener("click", () => stochExportTableToPdf("أرشيف الصقور - Falcons Archive", stochArchiveBodyEl));
 
     document.addEventListener("DOMContentLoaded", () => {
       stochLoadLocalSettings();
