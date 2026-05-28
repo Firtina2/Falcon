@@ -86,15 +86,18 @@
 
     .stoch-actions {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
+      justify-content: flex-start;
+      margin-top: 12px;
     }
 
     .stoch-btn {
       border: 0;
-      padding: 10px 16px;
-      border-radius: 10px;
+      padding: 7px 12px;
+      border-radius: 8px;
       cursor: pointer;
+      font-size: 13px;
       font-weight: 700;
       transition: transform 0.15s ease, opacity 0.15s ease;
     }
@@ -341,20 +344,6 @@
           <h2>قائمة الصقور - Falcons List</h2>
         </div>
 
-        <div class="stoch-actions">
-          <button id="stoch-refresh-btn" class="stoch-btn stoch-refresh-btn" type="button">
-            تحديث البيانات
-          </button>
-          <button id="stoch-archive-btn" class="stoch-btn stoch-archive-btn" type="button" disabled>
-            أرشفة فرص اليوم
-          </button>
-          <button id="stoch-telegram-btn" class="stoch-btn stoch-telegram-btn" type="button" disabled>
-            إرسال إلى تيليجرام
-          </button>
-          <button id="stoch-results-pdf-btn" class="stoch-btn stoch-pdf-btn" type="button">
-            تصدير PDF
-          </button>
-        </div>
       </div>
 
       <div id="stoch-status" class="stoch-status"></div>
@@ -385,6 +374,21 @@
           </tbody>
         </table>
       </div>
+
+      <div class="stoch-actions">
+        <button id="stoch-refresh-btn" class="stoch-btn stoch-refresh-btn" type="button">
+          تحديث
+        </button>
+        <button id="stoch-archive-btn" class="stoch-btn stoch-archive-btn" type="button" disabled>
+          أرشفة فرص اليوم
+        </button>
+        <button id="stoch-telegram-btn" class="stoch-btn stoch-telegram-btn" type="button" disabled>
+          إرسال إلى تيليجرام
+        </button>
+        <button id="stoch-results-pdf-btn" class="stoch-btn stoch-pdf-btn" type="button">
+          تصدير PDF
+        </button>
+      </div>
     </section>
 
     <section class="stoch-card">
@@ -393,11 +397,6 @@
           <h2>قائمة الصقور الأولية - Initial Falcons List</h2>
         </div>
 
-        <div class="stoch-actions">
-          <button id="stoch-before-close-position-pdf-btn" class="stoch-btn stoch-pdf-btn" type="button">
-            تصدير PDF
-          </button>
-        </div>
       </div>
 
       <div class="stoch-table-container">
@@ -426,6 +425,12 @@
           </tbody>
         </table>
       </div>
+
+      <div class="stoch-actions">
+        <button id="stoch-before-close-position-pdf-btn" class="stoch-btn stoch-pdf-btn" type="button">
+          تصدير PDF
+        </button>
+      </div>
     </section>
 
     <section class="stoch-card">
@@ -435,14 +440,6 @@
           <span>الفرص التي تم حفظها يدويًا للمراجعة والمتابعة.</span>
         </div>
 
-        <div class="stoch-actions">
-          <button id="stoch-clear-archive-btn" class="stoch-btn stoch-clear-archive-btn" type="button">
-            مسح الأرشيف
-          </button>
-          <button id="stoch-archive-pdf-btn" class="stoch-btn stoch-pdf-btn" type="button">
-            تصدير PDF
-          </button>
-        </div>
       </div>
 
       <div class="stoch-table-container">
@@ -470,6 +467,15 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="stoch-actions">
+        <button id="stoch-clear-archive-btn" class="stoch-btn stoch-clear-archive-btn" type="button">
+          مسح الأرشيف
+        </button>
+        <button id="stoch-archive-pdf-btn" class="stoch-btn stoch-pdf-btn" type="button">
+          تصدير PDF
+        </button>
       </div>
     </section>
 
